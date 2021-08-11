@@ -1,18 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "vaultChart.fullname" . }}
+  name: {{ include "helmChart.fullname" . }}
   labels:
-    {{- include "vaultChart.labels" . | nindent 4 }}
+    {{- include "helmChart.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.deployment.replicaCount }}
+  replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- with .Values.selectorLabels }}
-      {{ toYaml . }}
-      {{- end }}
+      {{- include "helmChart.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -20,104 +18,35 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- with .Values.selectorLabels }}
-        {{ toYaml . }}
-        {{- end }}
+        {{- include "helmChart.selectorLabels" . | nindent 8 }}
     spec:
-      {{if .Values.createInitContainer}}
-      volumes:
-      - name: config-init
-        configMap:
-          # defaultMode: 420
-          items:
-            - key: vault-agent-config-init.hcl
-              path: vault-agent-config-init.hcl
-          name: {{ include "vaultChart.fullname" . }}
-      - name: config-container
-        configMap:
-          # defaultMode: 420
-          items:
-            - key: vault-agent-config-container.hcl
-              path: vault-agent-config-container.hcl
-          name: {{ include "vaultChart.fullname" . }}
-      - name: shared-data
-        emptyDir: {}
-
-      initContainers:
-      - args:
-          - agent
-          - -config=/etc/vault/vault-agent-config-init.hcl
-          - -log-level=debug
-        env:
-          - name: VAULT_ADDR
-            value: {{.Values.envVariables.vault_addr_value}}
-        image: vault
-        name: vault-agent
-        # command: ['sh', '-c', 'cp /etc/vault-token/* /etc/secrets/']
-        volumeMounts:
-          - mountPath: /etc/vault-token/
-            name: shared-data
-          - mountPath: /etc/vault/
-            name: config-init
-      {{end}}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{.Values.serviceAccount.name}}
+      serviceAccountName: {{ include "helmChart.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.deployment.containerPort }}
+              containerPort: 80
               protocol: TCP
           livenessProbe:
-            initialDelaySeconds: 10
-            tcpSocket:
-              port: {{ .Values.deployment.containerPort }}
-            periodSeconds: 3
+            httpGet:
+              path: /
+              port: http
           readinessProbe:
-            initialDelaySeconds: 10
-            tcpSocket:
-              port: {{ .Values.deployment.containerPort }}
-            periodSeconds: 3
-          {{ if .Values.envVariables}}
-          env:
-            - name: {{.Values.envVariables.vault_addr_name}}
-              value: {{.Values.envVariables.vault_addr_value}}
-            - name: {{.Values.envVariables.vault_token_file_path_name}}
-              value: {{.Values.envVariables.vault_token_file_path_value}}
-            - name: {{.Values.envVariables.authRole_name}}
-              value: {{.Values.envVariables.authRole_value}}
-          {{end}}
+            httpGet:
+              path: /
+              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{if .Values.createInitContainer}}
-          volumeMounts:
-          - mountPath: /etc/vault-token/
-            name: shared-data
-          {{end}}
-        {{if .Values.createInitContainer}}
-        - args:
-          - agent
-          - -config=/etc/vault/vault-agent-config-container.hcl
-          - -log-level=debug
-          image: vault
-          imagePullPolicy: Always
-          name: vault-agent1
-          volumeMounts:
-            - mountPath: /etc/vault-token/
-              name: shared-data
-            - mountPath: /etc/vault/
-              name: config-container
-        {{end}}
-
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

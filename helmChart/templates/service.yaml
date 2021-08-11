@@ -1,17 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "vaultChart.fullname" . }}
+  name: {{ include "helmChart.fullname" . }}
   labels:
-    {{- with .Values.labels }}
-    {{ toYaml . }}
-    {{- end }}
+    {{- include "helmChart.labels" . | nindent 4 }}
 spec:
+  type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
+      targetPort: http
       protocol: TCP
       name: http
   selector:
-    {{- with .Values.selectorLabels }}
-    {{ toYaml . }}
-    {{- end }}
+    {{- include "helmChart.selectorLabels" . | nindent 4 }}

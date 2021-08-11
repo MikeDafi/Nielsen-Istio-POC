@@ -1,20 +1,18 @@
-# Default values for vaultChart.
+# Default values for helmChart.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
 image:
-  repository: vault
-  # repository: nginx
+  repository: nginx
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-imagePullSecrets:
-  - name: gitlab-access-token
+imagePullSecrets: []
 nameOverride: ""
-fullnameOverride: "vault"
+fullnameOverride: ""
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -39,17 +37,8 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: NodePort
-  port: 8200
-
-selectorLabels:
-  run: vault
-
-labels:
-  run: vault
-
-deployment:
-  containerPort: 8200
+  type: ClusterIP
+  port: 80
 
 ingress:
   enabled: false
