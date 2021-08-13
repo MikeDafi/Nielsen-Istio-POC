@@ -1,7 +1,12 @@
 # Nielsen-Istio-POC 
 
+### Why Istio? 
+Within the microservice architecture, each service needs to include code that accounts for its own business logic along with networking logic (communication configuration, security logic, retry logic, telemetry). As an application grows and more pods are added into a Kubernetes cluster, each microservice still needs to account for both types of logic, ultimately leading to a more complicated, bulkier application. 
+
+Istio helps with this as it takes care of the networking logic, leaving each microservice to focus on its own fucntionality. The beauty in Istio lies in the fact that our Kubernetes deployment and service files don't need to be modified. All of the configuration is done within Istio itself.
+
 ### Setup
-With the provided istio download folder, you can skip installing isto but you will need istoctl. 
+With the provided istio download folder, you can skip installing istio but you will need istioctl. 
 Refer to the [Getting Started](https://istio.io/latest/docs/setup/getting-started/) page to prepare your BookInfo Application.
 
 ### Notice
@@ -95,4 +100,23 @@ spec:
 ```
 Now running the same two commands should produce a ```200``` and ```403 - Forbidden```
 response.
+
+### Telemetry
+Istio integrates with several different telementry applications: cert-manager, Jaeger, Prometheus, Gragana, Kiali, Zipkin.
+
+To install the addons into your cluster, perform the following command from the root of your Istio installation:
+```
+$ kubectl apply -f samples/addons
+```
+
+Note: in order to view trace data, traffic must be sent to the Bookinfo product page. You can do this with:
+```
+$ for i in $(seq 1 100); do curl -s -o /dev/null "http://$GATEWAY_URL/productpage"; done
+```
+
+#### Accessing the dashboards
+One can access the Istio dashboard via any of the addons through the following:
+```
+$ istioctl dashboard <addon name>
+```
 
