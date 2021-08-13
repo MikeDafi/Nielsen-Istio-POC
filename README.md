@@ -9,6 +9,10 @@ Istio helps with this as it takes care of the networking logic, leaving each mic
 With the provided istio download folder, you can skip installing istio but you will need istioctl. 
 Refer to the [Getting Started](https://istio.io/latest/docs/setup/getting-started/) page to prepare your BookInfo Application.
 
+Note: within that setup, there were issues encountered with the ```minikube tunnel``` command. To determine the correct port for your web page, run:
+```minikube service -n istio-system istio-ingressgateway```.
+The second tab that opens contains the correct port. Append ```/productpage``` to the end of this URL.
+
 ### Notice
 For each of these examples you will need to ```kubectl apply -f``` then ```kubectl delete -f``` as they will conflict with each other
 
