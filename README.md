@@ -4,6 +4,9 @@
 With the provided istio download folder, you can skip installing isto but you will need istoctl. 
 Refer to the [Getting Started](https://istio.io/latest/docs/setup/getting-started/) page to prepare your BookInfo Application.
 
+### Notice
+For each of these examples you will need to ```kubectl apply -f``` then ```kubectl delete -f``` as they will conflict with each other
+
 ## Istio Authentication
 
 To invoke TLS in a cluster, we have multiple options in Istio. We can assign mTLS
