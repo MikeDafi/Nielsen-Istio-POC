@@ -23,7 +23,7 @@ to our mesh or each individual service in the mesh. One quick way to apply
 mTLS encryption is with ```PeerAuthentication```.
 
 ### Apply mTLS on a service
-In the code below, we select the productpage service with label app=productpage and name:"productpage" and
+In the code below, we select the productpage service with label app=productpage and name="productpage" and
 require mtls for any inbound traffic.
 ```
 apiVersion: "security.istio.io/v1beta1"
