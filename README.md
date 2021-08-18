@@ -106,7 +106,7 @@ Now running the same two commands should produce a ```200``` and ```403 - Forbid
 response.
 
 ### Telemetry
-Istio integrates with several different telementry applications: cert-manager, Jaeger, Prometheus, Gragana, Kiali, Zipkin.
+Istio integrates with several different telementry applications: cert-manager, Jaeger, Prometheus, Grafana, Kiali, Zipkin.
 
 To install the addons into your cluster, perform the following command from the root of your Istio installation:
 ```
